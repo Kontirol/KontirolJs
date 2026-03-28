@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div id="app">
+        <p>{{msg}}</p>
+        <div>{{hello}}</div>
+    </div>
+</body>
+
+<script>
+    class  Kontirol{
+        constructor(options){
+            this.$el = document.querySelector(options.el)
+            this.$data =  options.data
+            this.$template = this.$el.innerHTML
+            this.observe(this.$data)
+            this.proxy()
+            this.update()
+        }
+        proxy(){
+            const self =  this
+            Object.keys(this.$data).forEach(key=>{
+                Object.defineProperty(self,key,{
+                    get(){
+                        return self.$data[key]
+                    },
+                    set(newVal){
+                        self.$data[key] = newVal
+                        self.update()
+                    }
+                })
+            })
+        }
+        observe(obj){
+            Object.keys(obj).forEach(key=>{
+                let value =  obj[key]
+                const self = this
+                Object.defineProperty(obj,key,{
+                    get(){
+                        return value
+                    },
+                    set(newVal){
+                        value = newVal
+                        self.update()
+                    }
+                })
+            })
+        }
+        compile(template){
+            return template.replace(/\{\{(.*?)\}\}/g, (_, key) => {
+                return this[key.trim()]
+            })
+        }
+        update(){
+            // console.log("视图更新了",this.data);   
+            this.$el.innerHTML = this.compile(this.$template)
+            console.log(this.$el.innerHTML);
+            
+        }
+    }
+
+    const app = new Kontirol({
+        el:'#app',
+        data:{
+            msg:'Kontirol',
+            hello:"KontirolJs 框架"
+        }
+    })
+    
+    app.msg = "JS 框架"
+</script>
+</html>
